@@ -1,7 +1,9 @@
 import Project from "../models/Project.js";
 
 const getProjects = async(req, res) => {
-    
+    const projects = await Project.find().where('creator').equals(req.user)
+
+    res.json(projects);
 }
 
 const newProject = async(req, res) => {
@@ -18,15 +20,92 @@ const newProject = async(req, res) => {
 }
 
 const getProject = async(req, res) => {
+    const { id } = req.params;
 
+    if (id.length === 24) {
+        const project = await Project.findById(id);
+        if (!project) {
+            const error = new Error('Not Found');
+            return res.status(404).json({ msg: error.message });
+        }
+
+        if(project.creator.toString() !== req.user._id.toString()){
+            const error = new Error('Error! Invalid Action');
+            return res.status(404).json({ msg: error.message });
+        }
+        res.json(project);
+ 
+    } else {
+        return res.status(404).json({ msg: 'Not Found' });
+    }
+    
+
+    
 }
 
 const editProject = async(req, res) => {
+    const { id } = req.params;
+    const {name,client, description, deliverDate} = req.body;
+
+    if (id.length === 24) {
+        const project = await Project.findById(id);
+        if (!project) {
+            const error = new Error('Not Found');
+            return res.status(404).json({ msg: error.message });
+        }
+
+        if(project.creator.toString() !== req.user._id.toString()){
+            const error = new Error('Error! Invalid Action');
+            return res.status(404).json({ msg: error.message });
+        }
+        project.name = name || project.name;
+        project.client = client || project.client;
+        project.description = description || project.description;
+        project.deliverDate = deliverDate || project.deliverDate;
+
+        try {
+            const projectStored = await project.save();
+            res.json(projectStored);
+        } catch (error) {
+            console.log(error);
+        }
+        
+        
+        
+ 
+    } else {
+        return res.status(404).json({ msg: 'Not Found' });
+    }
+
 
 }
 
 const deleteProject = async(req, res) => {
+    const { id } = req.params;
 
+    if (id.length === 24) {
+        const project = await Project.findById(id);
+        if (!project) {
+            const error = new Error('Not Found');
+            return res.status(404).json({ msg: error.message });
+        }
+
+        if(project.creator.toString() !== req.user._id.toString()){
+            const error = new Error('Error! Invalid Action');
+            return res.status(404).json({ msg: error.message });
+        }
+
+        try {
+            await project.deleteOne();
+            res.json({msg: 'Project Deleted'});
+        } catch (error) {
+            console.log(error);
+        }
+    
+ 
+    } else {
+        return res.status(404).json({ msg: 'Not Found' });
+    }
 }
 
 const addCollaborator = async(req, res) => {
