@@ -1,4 +1,5 @@
 import Project from "../models/Project.js";
+import Task from "../models/Task.js";
 
 const getProjects = async(req, res) => {
     const projects = await Project.find().where('creator').equals(req.user)
@@ -33,7 +34,14 @@ const getProject = async(req, res) => {
             const error = new Error('Error! Invalid Action');
             return res.status(404).json({ msg: error.message });
         }
-        res.json(project);
+
+        //Get the tasks of the Project
+        const tasks = await Task.find().where('project').equals(project._id);
+        
+        res.json({
+            project,
+            tasks
+        });
  
     } else {
         return res.status(404).json({ msg: 'Not Found' });
@@ -116,9 +124,7 @@ const deleteCollaborator = async(req, res) => {
 
 }
 
-const getTasks = async(req, res) => {
 
-}
 
 export{
     getProjects,
@@ -128,5 +134,5 @@ export{
     deleteProject,
     addCollaborator,
     deleteCollaborator,
-    getTasks
+    
 }

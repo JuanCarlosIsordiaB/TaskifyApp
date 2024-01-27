@@ -71,7 +71,7 @@ const confirm = async(req, res) => {
             console.log(error);
         }
     }else{
-        const error = new Error('Invalid Token');
+        const error = new Error('Invalid Token !!');
         return res.status(403).json({msg: error.message})
     }
 }
@@ -125,7 +125,7 @@ const changePassword = async(req,res) => {
        }
        
     }else{
-        const error = new Error('Invalid Token');
+        const error = new Error('Invalid Token !!');
         return res.status(404).json({msg: error.message})
     }
 }
