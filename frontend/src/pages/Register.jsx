@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import {Link} from 'react-router-dom';
 import { Alert } from '../components/Alert';
+import axios from 'axios';
 
 
 export const Register = () => {
 
-  const [nameValue, setNameValue] = useState('');
-  const [emailValue, setEmailValue] = useState('');
-  const [passwordValue, setPasswordValue] = useState('');
+  const [name, setNameValue] = useState('');
+  const [email, setEmailValue] = useState('');
+  const [password, setPasswordValue] = useState('');
   const [reppassword, setReppassword] = useState('');
   const [alert, setAlert] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit =  async(e) => {
     e.preventDefault();
 
-    if([nameValue,emailValue,passwordValue,reppassword].includes('')){
+    if([name,email,password,reppassword].includes('')){
       
       setAlert({
         msg: 'All fields are required',
@@ -23,7 +24,7 @@ export const Register = () => {
       return
     }
 
-    if( passwordValue !== reppassword){
+    if( password !== reppassword){
       setAlert({
         msg: 'Passwords must be the same',
         error: true
@@ -31,7 +32,7 @@ export const Register = () => {
       return
     }
 
-    if( passwordValue.length < 3){
+    if( password.length < 3){
       setAlert({
         msg: 'Password is too short ',
         error: true
@@ -39,11 +40,27 @@ export const Register = () => {
       return
     }
 
-    setAlert({})
-
+    setAlert({});
 
     //Creating user in the API
-    console.log('creating user')
+    try {
+      const {data} = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users`,
+      {name, email,password});
+      setAlert({
+        msg: data.msg,
+        error: false
+      })
+      setNameValue('');
+      setEmailValue('');
+      setPasswordValue('');
+      setReppassword('');
+    } catch (error) {
+      console.log();
+      setAlert({
+        msg: error.response.data.msg,
+        error: true
+      })
+    }
   }
 
   const {msg} = alert;
@@ -70,7 +87,7 @@ export const Register = () => {
             id='name'
             placeholder='Your name'
             className='w-full mt-3 p-3 border border-gray-300 rounded-md bg-gray-100'
-            value={nameValue}
+            value={name}
             onChange={(e) => setNameValue(e.target.value)}
             />
         </div>
@@ -84,7 +101,7 @@ export const Register = () => {
             id='email'
             placeholder='Write your email'
             className='w-full mt-3 p-3 border border-gray-300 rounded-md bg-gray-100'
-            value={emailValue}
+            value={email}
             onChange={(e) => setEmailValue(e.target.value)}
           />
         </div>
@@ -98,7 +115,7 @@ export const Register = () => {
             id='password'
             placeholder='Write your Password'
             className='w-full mt-3 p-3 border border-gray-300 rounded-md bg-gray-100'
-            value={passwordValue}
+            value={password}
             onChange={(e) => setPasswordValue(e.target.value)}
           />
         </div>

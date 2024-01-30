@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import conectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
@@ -13,8 +14,23 @@ dotenv.config();
 
 conectDB();
 
-//Routing
+//Configurate CORS
+const whitelist = [process.env.FRONTEND_URL];
 
+const corsOptions = {
+    origin: function (origin, callback) {
+        console.log(origin);
+        if(whitelist.includes(origin)){
+            callback(null, true);
+        }else{
+            callback(new Error('Cors Error'));
+        }
+    }
+}
+
+app.use(cors(corsOptions));
+
+//Routing
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks',taskRoutes );
