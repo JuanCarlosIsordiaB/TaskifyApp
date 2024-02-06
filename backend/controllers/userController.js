@@ -1,4 +1,4 @@
-import { emailRegister } from '../helpers/emails.js';
+import { emailForgetPassword, emailRegister } from '../helpers/emails.js';
 import generateId from '../helpers/generateId.js';
 import generateJWT from '../helpers/generateJWT.js';
 import User from '../models/User.js';
@@ -92,6 +92,13 @@ const forgetPassword = async(req,res) => {
     try {
         user.token = generateId();
         await user.save();
+
+        emailForgetPassword({
+            email: user.email,
+            name: user.name,
+            token: user.token
+        });
+
         res.json({msg: 'We send you an email with the instructions.'})
     } catch (error) {
         console.log(error);
@@ -107,7 +114,8 @@ const checkToken = async(req,res) => {
     if(validToken){
         res.json({msg: 'valid token'});
     }else{
-        res.json({msg: 'non valid token'});
+        const error = new Error('Invalid Token')
+        return res.status(404).json({msg: error.message});
     }
 
 }

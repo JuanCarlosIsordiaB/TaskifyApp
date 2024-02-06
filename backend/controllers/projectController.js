@@ -35,13 +35,9 @@ const getProject = async(req, res) => {
             return res.status(404).json({ msg: error.message });
         }
 
-        //Get the tasks of the Project
-        const tasks = await Task.find().where('project').equals(project._id);
-        
-        res.json({
-            project,
-            tasks
-        });
+        res.json(
+            project
+        );
  
     } else {
         return res.status(404).json({ msg: 'Not Found' });
