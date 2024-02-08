@@ -44,7 +44,7 @@ export const Login = () => {
     } catch (error) {
       
       setAlert({
-        msg: error.response.data.msg,
+        msg: 'ERROR',
         error:true
       })
     }
