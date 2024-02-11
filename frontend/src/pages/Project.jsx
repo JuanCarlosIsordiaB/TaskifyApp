@@ -5,6 +5,8 @@ import ModalFormTask from "../components/ModalFormTask";
 import ModalDeleteTask from "../components/ModalDeleteTask";
 import { Task } from "../components/Task";
 import Alert from "../components/Alert";
+import { Collaborator } from "../components/Collaborator";
+import ModalDeleteCollaborator from "../components/ModalDeleteCollaborator";
 
 export const Project = () => {
   const params = useParams();
@@ -87,8 +89,44 @@ export const Project = () => {
         )}
       </div>
 
+      <div className="flex items-center justify-between mt-10">
+        <p className="font-bold text-xl">Collaborators</p>
+        <Link
+          to={`/projects/new-collaborator/${project._id}`}
+          className="text-gray-400 hover:text-black transition-all uppercase font-bold flex gap-1"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          Add
+        </Link>
+      </div>
+      <div className="bg-white shadow mt-10 rounded-lg">
+        {project.collaborators?.length ? (
+          project.collaborators?.map((collaborator) => (
+            <Collaborator key={collaborator._id} collaborator={collaborator} />
+          ))
+        ) : (
+          <p className="text-center my-5 p-10">
+            There is no collaborators in this project
+          </p>
+        )}
+      </div>
+
       <ModalFormTask />
       <ModalDeleteTask />
+      <ModalDeleteCollaborator />
     </>
   );
 };

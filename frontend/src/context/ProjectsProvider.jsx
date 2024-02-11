@@ -12,6 +12,8 @@ const ProjectsProvider = ({ children }) => {
   const [modalFormTask, setModalFormTask] = useState(false);
   const [modalDeleteTask, setModalDeleteTask] = useState(false);
   const [task, setTask] = useState({});
+  const [collaborator, setCollaborator] = useState({});
+  const [modalDeleteCollaborator, setModalDeleteCollaborator] = useState(false);
 
   const navigate = useNavigate();
 
@@ -117,7 +119,10 @@ const ProjectsProvider = ({ children }) => {
       const { data } = await clientAxios.get(`/projects/${id}`, config);
       setProject(data);
     } catch (error) {
-      console.log(error);
+      setAlert({
+        msg: "Project not found",
+        error: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -239,24 +244,97 @@ const ProjectsProvider = ({ children }) => {
         },
       };
 
-      const { data } = clientAxios.delete(`/tasks/${task._id}`, config);
+      const { data } = await clientAxios.delete(`/tasks/${task._id}`, config);
       setAlert({
-        msg: data.msg,
+        msg: "Task Deleted",
         error: false,
       });
 
       const projectUpdated = { ...project };
-      projectUpdated.tasks = projectUpdated.tasks.filter( taskState =>
-        taskState._id !== task._id
-        )
+      projectUpdated.tasks = projectUpdated.tasks.filter(
+        (taskState) => taskState._id !== task._id
+      );
 
       setProject(projectUpdated);
       setModalDeleteTask(false);
-      
+
       setTimeout(() => {
         setTask({});
       }, 3000);
     } catch (error) {}
+  };
+
+  const submitCollaborator = async (email) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clientAxios.post(
+        "/projects/collaborators",
+        { email },
+        config
+      );
+      setCollaborator(data);
+      setAlert({});
+    } catch (error) {
+      setAlert({
+        msg: error.response.data.msg,
+        error: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addCollaborator = async (email) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clientAxios.post(
+        `/projects/collaborators/${project._id}`,
+        email,
+        config
+      );
+      setAlert({
+        msg: data.msg,
+        error: false,
+      });
+      setCollaborator({});
+      setAlert({});
+    } catch (error) {
+      setAlert({
+        msg: error.response.data.msg,
+        error: true,
+      });
+    }
+  };
+
+  const handleModalDeleteCollaborator = (collaborator) => {
+    setModalDeleteCollaborator(!modalDeleteCollaborator);
+
+    setCollaborator(collaborator);
+  };
+
+  const deleteCollaborator = () => {
+    console.log(collaborator);
   };
 
   return (
@@ -278,6 +356,12 @@ const ProjectsProvider = ({ children }) => {
         handleModalDeleteTask,
         modalDeleteTask,
         deleteTask,
+        submitCollaborator,
+        collaborator,
+        addCollaborator,
+        handleModalDeleteCollaborator,
+        modalDeleteCollaborator,
+        deleteCollaborator,
       }}
     >
       {children}

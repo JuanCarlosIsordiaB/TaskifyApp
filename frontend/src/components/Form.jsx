@@ -72,9 +72,7 @@ export const Form = () => {
         className='bg-white py-10 px-5 md:w-1/2 rounded-lg'
         onSubmit={handleSubmit}
     >
-        {
-            msg && <Alert alert={alert} />
-        }
+        
         <div className='mb-5'>
             <label 
                 htmlFor="name"
